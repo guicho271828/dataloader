@@ -71,7 +71,12 @@ DATALOADER.  If not, see <http://www.gnu.org/licenses/>.
   ;;   (dataloader:save (dataloader:load (rel "lenna.tiff")) (rel "lenna-tiff.jpeg")))
   ;; (finishes
   ;;   (dataloader:save (dataloader:load (rel "lenna.tiff")) (rel "lenna-tiff.tiff")))
-  )
+
+  (finishes
+    (when (probe-file (rel "sine2.wav"))
+      (delete-file (rel "sine2.wav")))
+    (dataloader:save (dataloader:load (rel "sine.wav")) (rel "sine2.wav"))
+    (dataloader:load "t/sine2.wav")))
 
 
 

@@ -6,7 +6,8 @@
   :license "LLGPL"
   :defsystem-depends-on ()
   :depends-on (:magicffi
-               ;; :cl-wav :flac :mpg123 
+               :cl-wav
+               ;; :flac :mpg123 
                :png :cl-jpeg :retrospectiff
                :cl-csv
                :iterate :alexandria :trivia

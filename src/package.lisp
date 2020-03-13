@@ -47,13 +47,15 @@ DATALOADER.  If not, see <http://www.gnu.org/licenses/>.
                trim-outer-whitespace
                newline
                escape-mode
+               ;; wave args
+               chunk-data-reader
              &allow-other-keys)
 
   (declare (ignore type
                    csv-reader row-fn map-fn data-map-fn sample skip-first-p
                    separator quote escape unquoted-empty-string-is-nil
                    quoted-empty-string-is-nil trim-outer-whitespace newline
-                   escape-mode))
+                   escape-mode chunk-data-reader))
   
   (ematch mime
     ("image/png"
@@ -96,9 +98,23 @@ DATALOADER.  If not, see <http://www.gnu.org/licenses/>.
            (apply #'asarray
                   (apply #'cl-csv:read-csv s :allow-other-keys t args)
                   :allow-other-keys t args)))))
-    #+(or)
-    ("audio/wav"
-     (wav:read-wav-file file))
+    ((or "audio/wav"
+         "audio/x-wav"
+         "audio/wave"
+         "audio/x-wave"
+         "audio/vnd.wave")
+     ;; decided not to strip out the original metadata
+     #+(or)
+     (let* ((result (apply #'wav:read-wav-file file :allow-other-keys t args))
+            (array  (getf
+                     (find "data" result
+                           :key  (lambda (plist) (getf plist :chunk-id))
+                           :test 'string=)
+                     :chunk-data)))
+       (make-array (length array)
+                   :element-type (array-element-type array)
+                   :displaced-to array))
+     (apply #'wav:read-wav-file file :allow-other-keys t args))
     #+(or)
     ("audio/flac"
      (let ((decoder (flac:flac-open file)))
@@ -149,9 +165,25 @@ DATALOADER.  If not, see <http://www.gnu.org/licenses/>.
                      (write-char #\Tab s))
                    (prin1 (aref array i j) s))
              (terpri s))))
-    #+(or)
-    ("audio/wav"
-     (wav:read-wav-file file))
+    ((_ "wav")
+     #+(or)
+     (wav:write-wav-file (list (list :chunk-id "RIFF"
+                                     :chunk-data-size 176436
+                                     :file-type "WAVE")
+                               (list :chunk-id "fmt "
+                                     :chunk-data-size 16
+                                     :chunk-data
+                                     (list :compression-code 1
+                                           :number-of-channels 1
+                                           :sample-rate 44100
+                                           :average-bytes-per-second 88200
+                                           :block-align 2
+                                           :significant-bits-per-sample 16))
+                               (list :chunk-id "data"
+                                     :chunk-data-size (length array)
+                                     :chunk-data array))
+                         file)
+     (wav:write-wav-file array file))
     #+(or)
     ("audio/flac"
      (let ((decoder (flac:flac-open file)))
