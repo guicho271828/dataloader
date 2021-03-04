@@ -17,7 +17,5 @@ $ update-asdf
 |#
 
 
-((:dir :src
-       (:package)
-       (:rest)))
+((:rest))
 
