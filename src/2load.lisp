@@ -3,21 +3,29 @@
 
 (def-load-method (file "image/png" &rest args)
   (with-open-file (s file :direction :input :element-type '(unsigned-byte 8))
-    (png:decode s)))
+    (asarray (png:decode s))))
 
 (def-load-method (file "image/jpeg" &rest args &key buffer (colorspace-conversion t) cached-source-p (decode-frame t))
-  (multiple-value-bind (array height width) (apply #'cl-jpeg:decode-image file :allow-other-keys t args)
-    (make-array (list height width 3)
+  (multiple-value-bind (array height width components transform) (apply #'cl-jpeg:decode-image file :allow-other-keys t args)
+    (declare (ignorable transform))
+    ;; cl-jpeg supports sequential only; no progressive. Components mean color dimension.
+    (make-array (list height width components)
                 :element-type '(unsigned-byte 8)
                 :displaced-to array)))
 
 (def-load-method (file "image/tiff" &rest args)
   (match (retrospectiff:read-tiff-file file)
-    ((retrospectiff:tiff-image :data data :length h :width w)
-     (let ((a (make-array (list h w 3) :element-type '(unsigned-byte 8))))
-       (dotimes (i (* h w 3))
-         (setf (row-major-aref a i) (row-major-aref data i)))
-       a))))
+    ((retrospectiff:tiff-image :data data
+                               :length h
+                               :width w
+                               :samples-per-pixel c
+                               :bits-per-sample n)
+     ;; n could be an integer or a sequence of integers.
+     (when (typep n 'sequence)
+       (assert (= (reduce #'max n) (reduce #'min n))) ; length of n is below 4 (channel size), so this is safe.
+       (setf n (reduce #'max n)))
+     (reshape (asarray data :type `(unsigned-byte ,n))
+              (list h w c)))))
 
 (def-load-method (file ("application/csv"
                         "application/x-csv"
