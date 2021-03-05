@@ -1,7 +1,7 @@
 
 (in-package :dataloader)
 
-(def-load-method (file "image/png" &rest args)
+(def-load-method (file "image/png")
   (with-open-file (s file :direction :input :element-type '(unsigned-byte 8))
     (let ((data (png:decode s)))
       ;; this is a multidimensional simple array. Lets convert it to numcl array
@@ -20,7 +20,7 @@
                 :element-type '(unsigned-byte 8)
                 :displaced-to array)))
 
-(def-load-method (file "image/tiff" &rest args)
+(def-load-method (file "image/tiff")
   (match (retrospectiff:read-tiff-file file)
     ((retrospectiff:tiff-image :data data
                                :length h
