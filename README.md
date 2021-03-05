@@ -2,54 +2,66 @@
 
 This is what you might have needed for a long time.  It loads a file in an arbitrary
 data format into a [numcl-compatible array](https://github.com/numcl/numcl/blob/master/doc/DETAILS.org#representation).
+File types are automatically detected by the mime type information obtained by `libmagic`.
 
-## Usage
+Supported files are currently `png`, `jpg`, `tiff`, `csv`, `tsv`, `wav`.
+We plan to include support for `bmp`, `gif`, `npy`, `npz`.
+This library relies on existing libraries to load the files, such as `cl-png`,
+`retrospectiff`, `cl-csv`, but provides a consistent and natural array-based interface.
 
-``` common-lisp
-load (file &rest args
-         &key (mime (magicffi:pathname-mime-type file))
-         ;; asarray
-           type
-           ;; csv args
-           csv-reader row-fn map-fn data-map-fn sample skip-first-p 
-           (separator                    cl-csv:*separator*)
-           (quote                        cl-csv:*quote*)
-           (escape                       cl-csv:*quote-escape*)
-           unquoted-empty-string-is-nil
-           quoted-empty-string-is-nil
-           trim-outer-whitespace
-           newline
-           escape-mode
-         &allow-other-keys)
-```
+An image file are loaded into a NUMCL-compatible array with corresponding widht, height and channels.
 
-Load an arbitrary file using the mime type information obtained by `libmagic`.
+A sound files is loaded into a 1D array (monoral), or a 2D array with 2 channels (stereo).
+It provides a wrapper over `cl-wav` and correctly returns a `(unsigned-byte 16)` arrays
+for a 16-bit PCM file, which is not performed by `cl-wav`.
+The save method also automatically generates RIFF headers, which is not performed by `cl-wav`.
 
-Supported files are currently `png`, `jpg`, `tiff`, `bmp`, `csv`, `tsv`.
-We plan to include support for `wav`, `gif`, `npy`, `npz`.
 
-This library merely provides a bridge to various libraries. It uses `cl-png`,
-`retrospectiff`, `cl-csv` and so on.
+## Load
 
 ``` common-lisp
-save (array file &key (mime (pathname-type file)))
+DATALOADER:LOAD
+  [symbol]
+
+LOAD names a compiled function:
+  Lambda-list: (FILE &REST ARGS &KEY
+                (MIME (MAGICFFI:PATHNAME-MIME-TYPE FILE))
+                
+                ;; jpeg options
+                (DECODE-FRAME T) CACHED-SOURCE-P (COLORSPACE-CONVERSION T) BUFFER
+                
+                ;; csv options
+                ESCAPE-MODE NEWLINE
+                TRIM-OUTER-WHITESPACE QUOTED-EMPTY-STRING-IS-NIL
+                UNQUOTED-EMPTY-STRING-IS-NIL
+                (ESCAPE CL-CSV:*QUOTE-ESCAPE*) 'CL-CSV:*QUOTE*
+                (SEPARATOR CL-CSV:*SEPARATOR*) SKIP-FIRST-P SAMPLE
+                DATA-MAP-FN MAP-FN ROW-FN CSV-READER TYPE)
 ```
 
-This function saves the array into a file, using the file name extension or the
-additional `mime` argument.
+This function loads a file and returns a numcl-compatible array.
+The file format can be specified manually in the `mime` string, but by default detected by libmagic.
+
+## Save
+
+``` common-lisp
+DATALOADER:SAVE
+  [symbol]
+
+SAVE names a compiled function:
+  Lambda-list: (ARRAY FILE &REST ARGS &KEY (MIME (PATHNAME-TYPE FILE))
+  
+                ;; wav options
+                (BITS-PER-SECOND 44100))
+```
+
+This function saves the array into a file, using the file name extension or the additional `mime` argument.
 
 ## Installation
 
-You currently need a patched version of `magicffi` in https://github.com/guicho271828/magicffi .
-It also depends on [NUMCL](https://github.com/numcl/numcl).
-
-If you have `roswell`, run follows:
-
-    ros install numcl/constantfold numcl/specialized-function numcl/gtype numcl/numcl guicho271828/magicffi guicho271828/dataloader
+Available from quicklisp.
 
 ## Dependencies
-
-
 
 This library is at least tested on implementation listed below:
 
