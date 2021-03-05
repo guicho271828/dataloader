@@ -1,14 +1,14 @@
 #!/bin/sh
 #|-*- mode:lisp -*-|#
 #|
-exec ros -Q -- $0 "$@"
+exec ros -Q dynamic-space-size=8000 -- $0 "$@"
 |#
 
 (defun main (&rest argv)
   (declare (ignorable argv))
   (uiop:quit (if (handler-case
                      (progn
-                       (ql:quickload :data-io.test)
+                       (ql:quickload :dataloader.test)
                        (eval (read-from-string "(5am:run! :dataloader)")))
                    (serious-condition (c)
                      (describe c)

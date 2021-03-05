@@ -6,7 +6,7 @@ addons:
     packages:
       - libc6-i386
       - clisp
-      - openjdk-7-jre
+      - libmagic-dev
 
 env:
   global:
@@ -38,4 +38,5 @@ cache:
     - $HOME/.config/common-lisp
 
 script:
+  - ros install asdf
   - ./testscr.ros
