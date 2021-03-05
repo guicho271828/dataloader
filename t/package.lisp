@@ -35,7 +35,15 @@ DATALOADER.  If not, see <http://www.gnu.org/licenses/>.
 (defun rel (name &optional (dir #p"t/"))
   (asdf:system-relative-pathname :dataloader (merge-pathnames name dir)))
 
-(test dataloader
+(defun test-load-save (name name2)
+  (finishes
+    (dataloader:load (rel name)))
+  (finishes
+    (dataloader:save (dataloader:load (rel name)) (rel name2)))
+  (finishes
+    (dataloader:load (rel name2))))
+
+(test csv
   (finishes
     (dataloader:save (dataloader:load (rel "aaa.csv") :mime "text/csv" :data-map-fn #'read-from-string) (rel "aaa.tsv")))
   (finishes
@@ -46,37 +54,27 @@ DATALOADER.  If not, see <http://www.gnu.org/licenses/>.
       (setf loaded (dataloader:load (rel "strings.csv") :mime "text/csv" :type 'string))
       (print loaded))
     (is-true (typep (aref loaded 0 0) 'string))
-    (dataloader:save loaded (rel "strings.tsv")))
-  (finishes
-    (dataloader:load (rel "lenna.png")))
-  (finishes
-    (dataloader:load (rel "lenna.jpeg")))
-  (finishes
-    (dataloader:load (rel "lenna.tiff")))
-  (finishes
-    (dataloader:save (dataloader:load (rel "lenna.png")) (rel "lenna-png.png")))
-  ;; (finishes
-  ;;   (dataloader:save (dataloader:load (rel "lenna.png")) (rel "lenna-png.jpeg")))
-  (finishes
-    (dataloader:save (dataloader:load (rel "lenna.png")) (rel "lenna-png.tiff")))
-  (finishes
-    (dataloader:save (dataloader:load (rel "lenna.jpeg")) (rel "lenna-jpeg.png")))
-  ;; (finishes
-  ;;   (dataloader:save (dataloader:load (rel "lenna.jpeg")) (rel "lenna-jpeg.jpeg")))
-  (finishes
-    (dataloader:save (dataloader:load (rel "lenna.jpeg")) (rel "lenna-jpeg.tiff")))
-  ;; (finishes
-  ;;   (dataloader:save (dataloader:load (rel "lenna.tiff")) (rel "lenna-tiff.png")))
-  ;; (finishes
-  ;;   (dataloader:save (dataloader:load (rel "lenna.tiff")) (rel "lenna-tiff.jpeg")))
-  ;; (finishes
-  ;;   (dataloader:save (dataloader:load (rel "lenna.tiff")) (rel "lenna-tiff.tiff")))
+    (dataloader:save loaded (rel "strings.tsv"))))
 
-  (finishes
-    (when (probe-file (rel "sine2.wav"))
-      (delete-file (rel "sine2.wav")))
-    (dataloader:save (dataloader:load (rel "sine.wav")) (rel "sine2.wav"))
-    (dataloader:load "t/sine2.wav")))
+(test png
+  (test-load-save "lenna.png" "lenna-png.png"))
+
+(test jpg
+  (test-load-save "lenna.jpg" "lenna-jpg.jpg"))
+
+(test tiff
+  (test-load-save "lenna.tiff" "lenna-tiff.tiff"))
+
+(test conversion
+  (test-load-save "lenna.png" "lenna-png.tiff")
+  (test-load-save "lenna.png" "lenna-png.jpg")
+  (test-load-save "lenna.jpg" "lenna-png.png")
+  (test-load-save "lenna.jpg" "lenna-png.tiff")
+  (test-load-save "lenna.tiff" "lenna-png.png")
+  (test-load-save "lenna.tiff" "lenna-png.jpg"))
+
+(test wav
+  (test-load-save "sine.wav" "sine-wav.wav"))
 
 
 

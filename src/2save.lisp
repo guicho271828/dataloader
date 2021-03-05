@@ -3,21 +3,21 @@
 
 (def-save-method (array file ("png"))
   (with-open-file (s file :direction :output :if-does-not-exist :create :if-exists :supersede :element-type '(unsigned-byte 8))
-    (png:encode array s)))
+    (png:encode (numcl:to-simple-array array) s)))
 
 (def-save-method (array file ("jpg" "jpeg"))
   (ematch array
-    ((array :dimensions (list h w _))
-     (cl-jpeg:encode-image file (array-displacement array) 1 h w))))
+    ((array :dimensions (list h w c) :displaced-to d)
+     (cl-jpeg:encode-image file d c h w))))
 
 (def-save-method (array file ("tiff"))
   (ematch array
-    ((array :dimensions (list h w _))
+    ((array :dimensions (list h w c))
      (let ((tiff (make-instance 'retrospectiff:tiff-image
                                 :length h
                                 :width w
                                 :bits-per-sample 8
-                                :samples-per-pixel 1
+                                :samples-per-pixel c
                                 :data (array-displacement array)
                                 :byte-order tiff::*byte-order*
                                 :min-is-white t)))
