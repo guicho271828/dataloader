@@ -66,22 +66,62 @@
       (with-open-file (s file
                          :direction :input
                          :external-format (external-format file))
-        (apply #'asarray
+        (apply #'numcl:asarray
                (apply #'cl-csv:read-csv s :allow-other-keys t args)
                :allow-other-keys t args))
     (reader-error ()
       (with-open-file (s file
                          :direction :input)
-        (apply #'asarray
+        (apply #'numcl:asarray
                (apply #'cl-csv:read-csv s :allow-other-keys t args)
                :allow-other-keys t args)))))
+
+
+(defun find-chunk (id riff)
+  (find-if (lambda (plist) (string= id (getf plist :chunk-id)))
+           riff))
 
 (def-load-method (file ("audio/wav"
                         "audio/x-wav"
                         "audio/wave"
                         "audio/x-wave"
                         "audio/vnd.wave"))
-  (wav:read-wav-file file))
+  (let* ((riff (wav:read-wav-file file))
+         (fmt  (getf (find-chunk "fmt " riff) :chunk-data))
+         (data-ck (find-chunk "data" riff))
+         (data (getf data-ck :chunk-data))
+         (channels (getf fmt :number-of-channels))
+         (bytes-per-sample (getf fmt :significant-bits-per-sample)))
+    (assert (= 1 (getf fmt :compression-code)) nil "Compression format other than WAVE_FORMAT_PCM(0x0001) is not supported. See Multimedia Programming Interface and Data Specifications 1.0. https://www.aelius.com/njh/wavemetatools/doc/riffmci.pdf")
+    (ematch* (channels bytes-per-sample data)
+      ((1 8 (array :total-size size))
+       (values
+        (make-array size :element-type '(unsigned-byte 8) :displaced-to data)
+        fmt))
+      ((2 8 (array :total-size size))
+       (assert (evenp size))
+       (values
+        (make-array (list (/ size 2) 2) :element-type '(unsigned-byte 8) :displaced-to data)
+        fmt))
+      ((1 16 (array :total-size size))
+       (let ((data2 (make-array (/ size 2) :element-type '(unsigned-byte 16))))
+         (dotimes (i (/ size 2))
+           (setf (aref data2 i)
+                 (+ (aref data (* 2 i))
+                    (ash (aref data (1+ (* 2 i))) 8))))
+         (values
+          (make-array (/ size 2) :element-type '(unsigned-byte 16) :displaced-to data2)
+          fmt)))
+      ((2 16 (array :total-size size))
+       (let ((data2 (make-array (/ size 2) :element-type '(unsigned-byte 16))))
+         (dotimes (i (/ size 2))
+           (setf (aref data2 i)
+                 (+ (aref data (* 2 i))
+                    (ash (aref data (1+ (* 2 i))) 8))))
+         (values
+          (make-array (list (/ size 4) 2) :element-type '(unsigned-byte 16) :displaced-to data2)
+          fmt))))))
+
 
 #+(or)
 (def-load-method (file ("audio/flac"))

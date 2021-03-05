@@ -47,25 +47,70 @@
              (terpri s))))))
 
 
-(def-save-method (array file ("wav"))
-  #+(or)
-  (wav:write-wav-file (list (list :chunk-id "RIFF"
-                                  :chunk-data-size 176436
-                                  :file-type "WAVE")
-                            (list :chunk-id "fmt "
-                                  :chunk-data-size 16
-                                  :chunk-data
-                                  (list :compression-code 1
-                                        :number-of-channels 1
-                                        :sample-rate 44100
-                                        :average-bytes-per-second 88200
-                                        :block-align 2
-                                        :significant-bits-per-sample 16))
-                            (list :chunk-id "data"
-                                  :chunk-data-size (length array)
-                                  :chunk-data array))
-                      file)
-  (wav:write-wav-file array file))
+;; Using riff and wav requires reading
+;; Multimedia Programming Interface and Data Specifications 1.0.
+
+(def-save-method (array file ("wav")
+                        &key
+                        (bits-per-second 44100))
+  (flet ((writer (bits-per-sample data-size data)
+           (with-open-file (stream file
+                                   :direction :output
+                                   :element-type '(unsigned-byte 8)
+                                   :if-does-not-exist :create
+                                   :if-exists :supersede)
+             ;; note: fourcc (four character code) == dword
+             (riff:write-riff-chunks
+              (list (list :chunk-id "RIFF"
+                          :chunk-data-size (+ 2
+                                              (+ 2 2 16)
+                                              (+ 2 2 data-size))
+                          ;; 2
+                          :file-type "WAVE")
+                    ;; 2 + 2 + 16
+                    (list :chunk-id "fmt " ;2
+                          :chunk-data-size 16 ;2
+                          :chunk-data
+                          ;; 16 bytes = 2+2+4+4+2+2
+                          (list :compression-code 1 ;word --- actually, wFormatTag in IBM/MS spec
+                                :number-of-channels 1 ;word
+                                :sample-rate bits-per-second    ;dword
+                                :average-bytes-per-second (* 2 bits-per-second (/ bits-per-sample 8)) ;dword
+                                ;;word
+                                :block-align (* 2 (/ bits-per-sample 8))
+                                ;;word
+                                :significant-bits-per-sample bits-per-sample))
+                    ;; 2 + 2 + length
+                    (list :chunk-id "data" ;2
+                          :chunk-data-size data-size ;2
+                          :chunk-data data))
+              stream :chunk-data-writer (wav::wrap-format-chunk-data-writer)))))
+    (ematch array
+      ((array :dimensions (list size)
+              :element-type (list 'unsigned-byte 8))
+       (writer 8 size array))
+      
+      ((array :dimensions (list size 2)
+              :element-type (list 'unsigned-byte 8))
+       (writer 8 (* 2 size) (numcl:flatten array)))
+
+      ((array :dimensions (list size)
+              :element-type (list 'unsigned-byte 16))
+       (let ((array2 (make-array (* size 2) :element-type '(unsigned-byte 8))))
+         (dotimes (i size)
+           (setf (aref array2 (* 2 i))      (logand #xFF (aref array i))
+                 (aref array2 (1+ (* 2 i))) (ash (aref array i) -8)))
+         (writer 16 (* 2 size) array2)))
+
+      ((array :dimensions (list size 2)
+              :element-type (list 'unsigned-byte 16))
+       (let ((array2 (make-array (* size 4) :element-type '(unsigned-byte 8))))
+         (dotimes (i size)
+           (setf (aref array2 (+ 0 (* 4 i))) (logand #xFF (aref array i 0))
+                 (aref array2 (+ 1 (* 4 i))) (ash (aref array i 0) -8)
+                 (aref array2 (+ 2 (* 4 i))) (logand #xFF (aref array i 1))
+                 (aref array2 (+ 3 (* 4 i))) (ash (aref array i 1) -8)))
+         (writer 16 (* 4 size) array2))))))
 
 #+(or)
 ("audio/flac"

@@ -23,8 +23,7 @@ DATALOADER.  If not, see <http://www.gnu.org/licenses/>.
 (uiop:define-package dataloader.mime
   (:use))
 (uiop:define-package dataloader
-  (:use)
-  (:mix :numcl :iterate :trivia :alexandria)
+  (:use :cl :iterate :trivia :alexandria)
   (:local-nicknames (:mime :dataloader.mime))
   (:shadow :load)
   (:export #:load
