@@ -13,7 +13,7 @@
 (defparameter *load-keyword-arg-list* nil)
 
 (defgeneric %load (file mime &rest args &key &allow-other-keys)
-  (:documentation "A generic function that is defined for each mime type symbol in DATALOADER.MIME package."))
+  (:documentation "A generic function that is defined for each mime type symbol in `DATALOADER.MIME` package."))
 
 (defmethod %load ((file string) mime &rest args &key &allow-other-keys)
   (apply #'%load (pathname file) mime args))
@@ -22,11 +22,12 @@
   (apply #'%load file (intern-mime mime) args))
 
 (defmacro define-load-method ((filevar mime-string-or-strings &rest lambda-list) &body body)
-  "A wrapper over defmethod. Made primarily because defmethod does not support (OR (EQL ...)) or MEMBER as a specializer.
-LAMBDA-LIST contains a keyword argument portion of the congruent lambda list of DEFGENERIC.
+  "A wrapper over `defmethod`. Made primarily because defmethod does not support `(or (eql ...))` or `member` as a specializer.
+`mime-string-or-strings` is a string or a list of strings, where each string specifies a mime type e.g. \"image/png\".
+`lambda-list` contains a keyword argument portion of the congruent lambda list of `defgeneric`.
 In order to have a compatible lambda-list with the generic function,
-it adds &rest argument if not present,
-and &allow-other-keys when &key is present and &allow-other-keys is missing."
+it adds `&rest` argument if not present,
+and `&allow-other-keys` when `&key` is present and `&allow-other-keys` is missing."
   ;; 
   (when (not (member '&rest lambda-list))
     (with-gensyms (args)
@@ -53,7 +54,7 @@ and &allow-other-keys when &key is present and &allow-other-keys is missing."
 (defparameter *save-keyword-arg-list* nil)
 
 (defgeneric %save (array file mime &rest args &key &allow-other-keys)
-  (:documentation "A generic function that is defined for each mime type symbol in DATALOADER.MIME package."))
+  (:documentation "A generic function that is defined for each mime type symbol in `DATALOADER.MIME` package."))
 
 (defmethod %save (array (file string) mime &rest args &key &allow-other-keys)
   (apply #'%save array (pathname file) mime args))
@@ -62,11 +63,12 @@ and &allow-other-keys when &key is present and &allow-other-keys is missing."
   (apply #'%save array file (intern-mime mime) args))
 
 (defmacro define-save-method ((arrayvar filevar mime-string-or-strings &rest lambda-list) &body body)
-  "A wrapper over defmethod. Made primarily because defmethod does not support (OR (EQL ...)) or MEMBER as a specializer.
-LAMBDA-LIST contains a keyword argument portion of the congruent lambda list of DEFGENERIC.
+  "A wrapper over `defmethod`. Made primarily because defmethod does not support `(or (eql ...))` or `member` as a specializer.
+`mime-string-or-strings` is a string or a list of strings, where each string specifies a mime type e.g. \"image/png\".
+`lambda-list` contains a keyword argument portion of the congruent lambda list of `defgeneric`.
 In order to have a compatible lambda-list with the generic function,
-it adds &rest argument if not present,
-and &allow-other-keys when &key is present and &allow-other-keys is missing."
+it adds `&rest` argument if not present,
+and `&allow-other-keys` when `&key` is present and `&allow-other-keys` is missing."
   ;; 
   (when (not (member '&rest lambda-list))
     (with-gensyms (args)
