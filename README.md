@@ -1,4 +1,4 @@
-# Dataloader - A universal loader library for various data formats for images/audio
+# Dataloader - A universal loader library for various data formats for images/audio [![img](https://travis-ci.org/guicho271828/dataloader.svg)](https://travis-ci.org/guicho271828/dataloader)
 
 This is what you might have needed for a long time.  It loads a file in an arbitrary
 data format into a [numcl-compatible array](https://github.com/numcl/numcl/blob/master/doc/DETAILS.org#representation).
