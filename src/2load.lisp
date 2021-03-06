@@ -42,26 +42,26 @@
        array))))
 
 (define-load-method (file ("application/csv"
-                        "application/x-csv"
-                        "application/vnd.ms-excel"
-                        "text/csv"
-                        "text/comma-separated-values"
-                        "text/x-csv"
-                        "text/x-comma-separated-values"
-                        "text/tab-separated-values"
-                        "text/plain")
-                       &rest args
-                       &key
-                       type             ;for asarray
-                       csv-reader row-fn map-fn data-map-fn sample skip-first-p 
-                       (separator                    cl-csv:*separator*)
-                       (quote                        cl-csv:*quote*)
-                       (escape                       cl-csv:*quote-escape*)
-                       unquoted-empty-string-is-nil
-                       quoted-empty-string-is-nil
-                       trim-outer-whitespace
-                       newline
-                       escape-mode)
+                           "application/x-csv"
+                           "application/vnd.ms-excel"
+                           "text/csv"
+                           "text/comma-separated-values"
+                           "text/x-csv"
+                           "text/x-comma-separated-values"
+                           "text/tab-separated-values"
+                           "text/plain")
+                          &rest args
+                          &key
+                          type             ;for asarray
+                          csv-reader row-fn map-fn data-map-fn sample skip-first-p 
+                          (separator                    cl-csv:*separator*)
+                          (quote                        cl-csv:*quote*)
+                          (escape                       cl-csv:*quote-escape*)
+                          unquoted-empty-string-is-nil
+                          quoted-empty-string-is-nil
+                          trim-outer-whitespace
+                          newline
+                          escape-mode)
   (handler-case
       (with-open-file (s file
                          :direction :input
@@ -82,10 +82,10 @@
            riff))
 
 (define-load-method (file ("audio/wav"
-                        "audio/x-wav"
-                        "audio/wave"
-                        "audio/x-wave"
-                        "audio/vnd.wave"))
+                           "audio/x-wav"
+                           "audio/wave"
+                           "audio/x-wave"
+                           "audio/vnd.wave"))
   (let* ((riff (wav:read-wav-file file))
          (fmt  (getf (find-chunk "fmt " riff) :chunk-data))
          (data-ck (find-chunk "data" riff))
