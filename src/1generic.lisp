@@ -12,14 +12,16 @@
 
 (defparameter *load-keyword-arg-list* nil)
 
-(defgeneric %load (file mime &rest args &key &allow-other-keys)
+(defgeneric perform-load (file mime &rest args &key &allow-other-keys)
   (:documentation "A generic function that is defined for each mime type symbol in `DATALOADER.MIME` package."))
 
-(defmethod %load ((file string) mime &rest args &key &allow-other-keys)
-  (apply #'%load (pathname file) mime args))
+(defmethod perform-load ((file string) mime &rest args &key &allow-other-keys)
+  "Convert a namestring into a pathanme"
+  (apply #'perform-load (pathname file) mime args))
 
-(defmethod %load (file (mime string) &rest args &key &allow-other-keys)
-  (apply #'%load file (intern-mime mime) args))
+(defmethod perform-load (file (mime string) &rest args &key &allow-other-keys)
+  "Convert a mime string into a symbol"
+  (apply #'perform-load file (intern-mime mime) args))
 
 (defmacro define-load-method ((filevar mime-string-or-strings &rest lambda-list) &body body)
   "A wrapper over `defmethod`. Made primarily because defmethod does not support `(or (eql ...))` or `member` as a specializer.
@@ -41,7 +43,7 @@ and `&allow-other-keys` when `&key` is present and `&allow-other-keys` is missin
      ,@(iter (for mime-string in (ensure-list mime-string-or-strings))
              (check-type mime-string string)
              (collecting
-              `(defmethod %load (,filevar (mime (eql ',(intern-mime mime-string))) ,@lambda-list)
+              `(defmethod perform-load (,filevar (mime (eql ',(intern-mime mime-string))) ,@lambda-list)
                  ,@(when-let ((vars (mapcar #'car (mapcar #'ensure-list (set-difference lambda-list lambda-list-keywords)))))
                      `((declare (ignorable ,@vars))))
                  ,@body)))))
@@ -53,14 +55,16 @@ and `&allow-other-keys` when `&key` is present and `&allow-other-keys` is missin
 
 (defparameter *save-keyword-arg-list* nil)
 
-(defgeneric %save (array file mime &rest args &key &allow-other-keys)
+(defgeneric perform-save (array file mime &rest args &key &allow-other-keys)
   (:documentation "A generic function that is defined for each mime type symbol in `DATALOADER.MIME` package."))
 
-(defmethod %save (array (file string) mime &rest args &key &allow-other-keys)
-  (apply #'%save array (pathname file) mime args))
+(defmethod perform-save (array (file string) mime &rest args &key &allow-other-keys)
+  "Convert a namestring into a pathanme"
+  (apply #'perform-save array (pathname file) mime args))
 
-(defmethod %save (array file (mime string) &rest args &key &allow-other-keys)
-  (apply #'%save array file (intern-mime mime) args))
+(defmethod perform-save (array file (mime string) &rest args &key &allow-other-keys)
+  "Convert a mime string into a symbol"
+  (apply #'perform-save array file (intern-mime mime) args))
 
 (defmacro define-save-method ((arrayvar filevar mime-string-or-strings &rest lambda-list) &body body)
   "A wrapper over `defmethod`. Made primarily because defmethod does not support `(or (eql ...))` or `member` as a specializer.
@@ -82,7 +86,7 @@ and `&allow-other-keys` when `&key` is present and `&allow-other-keys` is missin
      ,@(iter (for mime-string in (ensure-list mime-string-or-strings))
              (check-type mime-string string)
              (collecting
-              `(defmethod %save (,arrayvar ,filevar (mime (eql ',(intern-mime mime-string))) ,@lambda-list)
+              `(defmethod perform-save (,arrayvar ,filevar (mime (eql ',(intern-mime mime-string))) ,@lambda-list)
                  ,@(when-let ((vars (mapcar #'car (mapcar #'ensure-list (set-difference lambda-list lambda-list-keywords)))))
                      `((declare (ignorable ,@vars))))
                  ,@body)))))

@@ -24,7 +24,7 @@ DATALOADER.  If not, see <http://www.gnu.org/licenses/>.
     (:use)
   (:documentation "A package containing symbols that are supported by dataloader.
 Each symbol has a name read from a mime type string, e.g., \"image/png\" -> `IMAGE/PNG` .
-The symbols are used as an `EQL` specializer for a generic function `DATALOADER:%LOAD` and `DATALOADER:%SAVE`."))
+The symbols are used as an `eql` specializer for a generic function `dataloader:perform-load` and `dataloader:perform-save`."))
 (uiop:define-package :dataloader
   (:use :cl :iterate :trivia :alexandria)
   (:local-nicknames (:mime :dataloader.mime))
@@ -32,7 +32,9 @@ The symbols are used as an `EQL` specializer for a generic function `DATALOADER:
   (:export #:load
            #:save
            #:define-load-method
-           #:define-save-method)
+           #:define-save-method
+           #:perform-save
+           #:perform-load)
   (:documentation "The main package for dataloader."))
 (in-package :dataloader)
 
