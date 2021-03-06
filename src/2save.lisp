@@ -1,16 +1,16 @@
 
 (in-package :dataloader)
 
-(def-save-method (array file ("png"))
+(define-save-method (array file ("png"))
   (with-open-file (s file :direction :output :if-does-not-exist :create :if-exists :supersede :element-type '(unsigned-byte 8))
     (png:encode (numcl:to-simple-array array) s)))
 
-(def-save-method (array file ("jpg" "jpeg"))
+(define-save-method (array file ("jpg" "jpeg"))
   (ematch array
     ((array :dimensions (list h w c) :displaced-to d)
      (cl-jpeg:encode-image file d c h w))))
 
-(def-save-method (array file ("tiff"))
+(define-save-method (array file ("tiff"))
   (ematch array
     ((array :dimensions (list h w c))
      (let ((tiff (make-instance 'retrospectiff:tiff-image
@@ -24,7 +24,7 @@
        (with-open-file (s file :direction :output :if-does-not-exist :create :if-exists :supersede :element-type '(unsigned-byte 8))
          (retrospectiff:write-tiff-stream s tiff))))))
 
-(def-save-method (array file ("csv"))
+(define-save-method (array file ("csv"))
   (ematch array
     ((array :dimensions (list h w))
      (with-open-file (s file :direction :output :if-does-not-exist :create :if-exists :supersede)
@@ -35,7 +35,7 @@
                    (prin1 (aref array i j) s))
              (terpri s))))))
 
-(def-save-method (array file ("tsv"))
+(define-save-method (array file ("tsv"))
   (ematch array
     ((array :dimensions (list h w))
      (with-open-file (s file :direction :output :if-does-not-exist :create :if-exists :supersede)
@@ -50,7 +50,7 @@
 ;; Using riff and wav requires reading
 ;; Multimedia Programming Interface and Data Specifications 1.0.
 
-(def-save-method (array file ("wav")
+(define-save-method (array file ("wav")
                         &key
                         (bits-per-second 44100))
   (flet ((writer (bits-per-sample data-size data)

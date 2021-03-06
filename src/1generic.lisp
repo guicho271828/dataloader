@@ -21,7 +21,7 @@
 (defmethod %load (file (mime string) &rest args &key &allow-other-keys)
   (apply #'%load file (intern-mime mime) args))
 
-(defmacro def-load-method ((filevar mime-string-or-strings &rest lambda-list) &body body)
+(defmacro define-load-method ((filevar mime-string-or-strings &rest lambda-list) &body body)
   "A wrapper over defmethod. Made primarily because defmethod does not support (OR (EQL ...)) or MEMBER as a specializer.
 LAMBDA-LIST contains a keyword argument portion of the congruent lambda list of DEFGENERIC.
 In order to have a compatible lambda-list with the generic function,
@@ -61,7 +61,7 @@ and &allow-other-keys when &key is present and &allow-other-keys is missing."
 (defmethod %save (array file (mime string) &rest args &key &allow-other-keys)
   (apply #'%save array file (intern-mime mime) args))
 
-(defmacro def-save-method ((arrayvar filevar mime-string-or-strings &rest lambda-list) &body body)
+(defmacro define-save-method ((arrayvar filevar mime-string-or-strings &rest lambda-list) &body body)
   "A wrapper over defmethod. Made primarily because defmethod does not support (OR (EQL ...)) or MEMBER as a specializer.
 LAMBDA-LIST contains a keyword argument portion of the congruent lambda list of DEFGENERIC.
 In order to have a compatible lambda-list with the generic function,

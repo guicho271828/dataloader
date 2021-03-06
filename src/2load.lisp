@@ -1,7 +1,7 @@
 
 (in-package :dataloader)
 
-(def-load-method (file "image/png")
+(define-load-method (file "image/png")
   (with-open-file (s file :direction :input :element-type '(unsigned-byte 8))
     (let ((data (png:decode s)))
       ;; this is a multidimensional simple array. Lets convert it to numcl array
@@ -12,7 +12,7 @@
                 (row-major-aref data i)))
         array))))
 
-(def-load-method (file "image/jpeg" &rest args &key buffer (colorspace-conversion t) cached-source-p (decode-frame t))
+(define-load-method (file "image/jpeg" &rest args &key buffer (colorspace-conversion t) cached-source-p (decode-frame t))
   (multiple-value-bind (array height width components transform) (apply #'cl-jpeg:decode-image file :allow-other-keys t args)
     (declare (ignorable transform))
     ;; cl-jpeg supports sequential only; no progressive. Components mean color dimension.
@@ -20,7 +20,7 @@
                 :element-type '(unsigned-byte 8)
                 :displaced-to array)))
 
-(def-load-method (file "image/tiff")
+(define-load-method (file "image/tiff")
   (match (retrospectiff:read-tiff-file file)
     ((retrospectiff:tiff-image :data data
                                :length h
@@ -41,7 +41,7 @@
                (row-major-aref data i)))
        array))))
 
-(def-load-method (file ("application/csv"
+(define-load-method (file ("application/csv"
                         "application/x-csv"
                         "application/vnd.ms-excel"
                         "text/csv"
@@ -81,7 +81,7 @@
   (find-if (lambda (plist) (string= id (getf plist :chunk-id)))
            riff))
 
-(def-load-method (file ("audio/wav"
+(define-load-method (file ("audio/wav"
                         "audio/x-wav"
                         "audio/wave"
                         "audio/x-wave"
@@ -124,7 +124,7 @@
 
 
 #+(or)
-(def-load-method (file ("audio/flac"))
+(define-load-method (file ("audio/flac"))
   (let ((decoder (flac:flac-open file)))
     (unwind-protect
          (progn
@@ -133,13 +133,13 @@
       (flac:flac-close decoder))))
 
 #+(or)
-(def-load-method (file ("image/x-ms-bmp"))
+(define-load-method (file ("image/x-ms-bmp"))
   (png::decode-file file))
 
 #+(or)
-(def-load-method (file ("image/gif"))
+(define-load-method (file ("image/gif"))
   (retrospectiff:read-tiff-file file))
 
 #+(or)
-(def-load-method (file ())
+(define-load-method (file ())
   )
