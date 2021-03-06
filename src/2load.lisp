@@ -1,7 +1,7 @@
 
 (in-package :dataloader)
 
-(define-load-method (file "image/png")
+(define-load-method (file ("png" "image/png"))
   (with-open-file (s file :direction :input :element-type '(unsigned-byte 8))
     (let ((data (png:decode s)))
       ;; this is a multidimensional simple array. Lets convert it to numcl array
@@ -12,7 +12,7 @@
                 (row-major-aref data i)))
         array))))
 
-(define-load-method (file "image/jpeg" &rest args &key buffer (colorspace-conversion t) cached-source-p (decode-frame t))
+(define-load-method (file ("jpg" "jpeg" "image/jpeg") &rest args &key buffer (colorspace-conversion t) cached-source-p (decode-frame t))
   (multiple-value-bind (array height width components transform) (apply #'cl-jpeg:decode-image file :allow-other-keys t args)
     (declare (ignorable transform))
     ;; cl-jpeg supports sequential only; no progressive. Components mean color dimension.
@@ -20,7 +20,7 @@
                 :element-type '(unsigned-byte 8)
                 :displaced-to array)))
 
-(define-load-method (file "image/tiff")
+(define-load-method (file ("tiff" "image/tiff"))
   (match (retrospectiff:read-tiff-file file)
     ((retrospectiff:tiff-image :data data
                                :length h
@@ -41,7 +41,9 @@
                (row-major-aref data i)))
        array))))
 
-(define-load-method (file ("application/csv"
+(define-load-method (file ("csv"
+                           "tsv"
+                           "application/csv"
                            "application/x-csv"
                            "application/vnd.ms-excel"
                            "text/csv"
@@ -81,7 +83,8 @@
   (find-if (lambda (plist) (string= id (getf plist :chunk-id)))
            riff))
 
-(define-load-method (file ("audio/wav"
+(define-load-method (file ("wav"
+                           "audio/wav"
                            "audio/x-wav"
                            "audio/wave"
                            "audio/x-wave"
