@@ -12,7 +12,8 @@
 
 (defparameter *load-keyword-arg-list* nil)
 
-(defgeneric %load (file mime &rest args &key &allow-other-keys))
+(defgeneric %load (file mime &rest args &key &allow-other-keys)
+  (:documentation "A generic function that is defined for each mime type symbol in DATALOADER.MIME package."))
 
 (defmethod %load ((file string) mime &rest args &key &allow-other-keys)
   (apply #'%load (pathname file) mime args))
@@ -51,7 +52,8 @@ and &allow-other-keys when &key is present and &allow-other-keys is missing."
 
 (defparameter *save-keyword-arg-list* nil)
 
-(defgeneric %save (array file mime &rest args &key &allow-other-keys))
+(defgeneric %save (array file mime &rest args &key &allow-other-keys)
+  (:documentation "A generic function that is defined for each mime type symbol in DATALOADER.MIME package."))
 
 (defmethod %save (array (file string) mime &rest args &key &allow-other-keys)
   (apply #'%save array (pathname file) mime args))

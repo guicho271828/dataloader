@@ -21,7 +21,10 @@ DATALOADER.  If not, see <http://www.gnu.org/licenses/>.
 
 (in-package :cl-user)
 (uiop:define-package dataloader.mime
-  (:use))
+    (:use)
+  (:documentation "A package containing symbols that are supported by dataloader.
+Each symbol has a name read from a mime type string, e.g., \"image/png\" -> IMAGE/PNG .
+The symbols are used as an EQL specializer for a generic function DATALOADER:%LOAD and DATALOADER:%SAVE."))
 (uiop:define-package dataloader
   (:use :cl :iterate :trivia :alexandria)
   (:local-nicknames (:mime :dataloader.mime))
