@@ -9,13 +9,14 @@ We plan to include support for `bmp`, `gif`, `npz`.
 This library relies on existing libraries to load the files, such as `cl-png`,
 `retrospectiff`, `cl-csv`, but provides a consistent and natural array-based interface.
 
-An image file are loaded into a NUMCL-compatible array with corresponding widht, height and channels.
+An image file is loaded into a NUMCL-compatible array with corresponding width, height and channels.
 
-A sound files is loaded into a 1D array (monoral), or a 2D array with 2 channels (stereo).
+A sound file is loaded into a 1D array (monoral), or a 2D array with 2 channels (stereo).
 It provides a wrapper over `cl-wav` and correctly returns a `(unsigned-byte 16)` arrays
 for a 16-bit PCM file, which is not performed by `cl-wav`.
 The save method also automatically generates RIFF headers, which is not performed by `cl-wav`.
 
+A numpy file is loaded with the corresponding width and height using `numpy-file-format` library.
 
 ## Load
 
