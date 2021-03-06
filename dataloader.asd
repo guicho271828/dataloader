@@ -21,6 +21,7 @@
               :alexandria
               :trivia
               :numcl)
+ :serial t
  :pathname "src"
  :components ((:file "0package")
               (:file "1generic")
