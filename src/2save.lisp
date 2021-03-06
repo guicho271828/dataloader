@@ -1,16 +1,16 @@
 
 (in-package :dataloader)
 
-(define-save-method (data file ("png"))
+(define-save-method (data file ("png" "image/png"))
   (with-open-file (s file :direction :output :if-does-not-exist :create :if-exists :supersede :element-type '(unsigned-byte 8))
     (png:encode (numcl:to-simple-array data) s)))
 
-(define-save-method (data file ("jpg" "jpeg"))
+(define-save-method (data file ("jpg" "jpeg" "image/jpeg"))
   (ematch data
     ((array :dimensions (list h w c) :displaced-to d)
      (cl-jpeg:encode-image file d c h w))))
 
-(define-save-method (data file ("tiff"))
+(define-save-method (data file ("tiff" "image/tiff"))
   (ematch data
     ((array :dimensions (list h w c))
      (let ((tiff (make-instance 'retrospectiff:tiff-image
@@ -24,7 +24,13 @@
        (with-open-file (s file :direction :output :if-does-not-exist :create :if-exists :supersede :element-type '(unsigned-byte 8))
          (retrospectiff:write-tiff-stream s tiff))))))
 
-(define-save-method (data file ("csv"))
+(define-save-method (data file ("csv"
+                                "application/csv"
+                                "application/x-csv"
+                                "text/csv"
+                                "text/comma-separated-values"
+                                "text/x-csv"
+                                "text/x-comma-separated-values"))
   (ematch data
     ((array :dimensions (list h w))
      (with-open-file (s file :direction :output :if-does-not-exist :create :if-exists :supersede)
@@ -35,7 +41,7 @@
                    (prin1 (aref data i j) s))
              (terpri s))))))
 
-(define-save-method (data file ("tsv"))
+(define-save-method (data file ("tsv" "text/tab-separated-values"))
   (ematch data
     ((array :dimensions (list h w))
      (with-open-file (s file :direction :output :if-does-not-exist :create :if-exists :supersede)
@@ -50,9 +56,14 @@
 ;; Using riff and wav requires reading
 ;; Multimedia Programming Interface and Data Specifications 1.0.
 
-(define-save-method (data file ("wav")
-                        &key
-                        (bits-per-second 44100))
+(define-save-method (data file ("wav"
+                                "audio/wav"
+                                "audio/x-wav"
+                                "audio/wave"
+                                "audio/x-wave"
+                                "audio/vnd.wave")
+                          &key
+                          (bits-per-second 44100))
   (flet ((writer (bits-per-sample data-size data)
            (with-open-file (stream file
                                    :direction :output
