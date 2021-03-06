@@ -17,6 +17,7 @@
               :cl-jpeg
               :retrospectiff
               :cl-csv
+              :numpy-file-format
               :iterate
               :alexandria
               :trivia

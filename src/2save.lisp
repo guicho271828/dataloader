@@ -123,6 +123,9 @@
                  (aref data2 (+ 3 (* 4 i))) (ash (aref data i 1) -8)))
          (writer 16 (* 4 size) data2))))))
 
+(define-save-method (data file ("npy"))
+  (numpy-file-format:store-array data file))
+
 #+(or)
 ("audio/flac"
  (let ((decoder (flac:flac-open file)))

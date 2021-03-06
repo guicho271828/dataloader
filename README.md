@@ -4,8 +4,8 @@ This is what you might have needed for a long time.  It loads a file in an arbit
 data format into a [numcl-compatible array](https://github.com/numcl/numcl/blob/master/doc/DETAILS.org#representation).
 File types are automatically detected by the mime type information obtained by `libmagic`.
 
-Supported files are currently `png`, `jpg`, `tiff`, `csv`, `tsv`, `wav`.
-We plan to include support for `bmp`, `gif`, `npy`, `npz`.
+Supported files are currently `png`, `jpg`, `tiff`, `csv`, `tsv`, `wav`, `npy`.
+We plan to include support for `bmp`, `gif`, `npz`.
 This library relies on existing libraries to load the files, such as `cl-png`,
 `retrospectiff`, `cl-csv`, but provides a consistent and natural array-based interface.
 

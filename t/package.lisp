@@ -76,5 +76,7 @@ DATALOADER.  If not, see <http://www.gnu.org/licenses/>.
 (test wav
   (test-load-save "sine.wav" "sine-wav.wav"))
 
-
+(test npy
+      (test-load-save "arange-5.npy" "arange-5-npy.npy")
+      (test-load-save "arange-5.0.npy" "arange-5.0-npy.npy"))
 

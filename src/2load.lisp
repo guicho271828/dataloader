@@ -126,6 +126,10 @@
           fmt))))))
 
 
+(define-load-method (file ("npy"))
+  "libmagic can detect numpy file, but does not return a meaningful mime type"
+  (numpy-file-format:load-array file))
+
 (define-load-method (file ("application/octet-stream") &rest args)
   "fallback method for application/octet-stream mime type.
 Since not much can be inferred from this mime type, it calls itself with pathname extension as the second argument."
