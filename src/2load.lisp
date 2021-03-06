@@ -126,6 +126,11 @@
           fmt))))))
 
 
+(define-load-method (file ("application/octet-stream") &rest args)
+  "fallback method for application/octet-stream mime type.
+Since not much can be inferred from this mime type, it calls itself with pathname extension as the second argument."
+  (apply #'perform-load file (pathname-type file) args))
+
 #+(or)
 (define-load-method (file ("audio/flac"))
   (let ((decoder (flac:flac-open file)))
