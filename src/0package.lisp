@@ -20,12 +20,12 @@ DATALOADER.  If not, see <http://www.gnu.org/licenses/>.
 |#
 
 (in-package :cl-user)
-(uiop:define-package :dataloader.mime
+(defpackage :dataloader.mime
     (:use)
   (:documentation "A package containing symbols that are supported by dataloader.
 Each symbol has a name read from a mime type string, e.g., \"image/png\" -> `IMAGE/PNG` .
 The symbols are used as an `eql` specializer for a generic function `dataloader:perform-load` and `dataloader:perform-save`."))
-(uiop:define-package :dataloader
+(defpackage :dataloader
   (:use :cl :iterate :trivia :alexandria)
   (:local-nicknames (:mime :dataloader.mime))
   (:shadow :load)
