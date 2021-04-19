@@ -63,11 +63,12 @@
                           quoted-empty-string-is-nil
                           trim-outer-whitespace
                           newline
-                          escape-mode)
+                          escape-mode
+                          (external-format (external-format file)))
   (handler-case
       (with-open-file (s file
                          :direction :input
-                         :external-format (external-format file))
+                         :external-format external-format)
         (apply #'numcl:asarray
                (apply #'cl-csv:read-csv s :allow-other-keys t args)
                :allow-other-keys t args))
